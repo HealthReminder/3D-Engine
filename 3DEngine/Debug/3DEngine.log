@@ -1,0 +1,10 @@
+﻿  3DEngine.cpp
+B:\Projetos\2020\3\3DEngine\3DEngine\3DEngine\3DEngine.cpp(1,10): warning C4067: unexpected tokens following preprocessor directive - expected a newline
+B:\Projetos\2020\3\3DEngine\3DEngine\3DEngine\3DEngine.cpp(149,43): warning C4244: 'argument': conversion from 'float' to 'int', possible loss of data
+B:\Projetos\2020\3\3DEngine\3DEngine\3DEngine\3DEngine.cpp(149,22): warning C4244: 'argument': conversion from 'float' to 'int', possible loss of data
+B:\Projetos\2020\3\3DEngine\3DEngine\3DEngine\3DEngine.cpp(148,43): warning C4244: 'argument': conversion from 'float' to 'int', possible loss of data
+B:\Projetos\2020\3\3DEngine\3DEngine\3DEngine\3DEngine.cpp(148,22): warning C4244: 'argument': conversion from 'float' to 'int', possible loss of data
+B:\Projetos\2020\3\3DEngine\3DEngine\3DEngine\3DEngine.cpp(147,55): warning C4244: 'argument': conversion from 'float' to 'int', possible loss of data
+B:\Projetos\2020\3\3DEngine\3DEngine\3DEngine\3DEngine.cpp(147,34): warning C4244: 'argument': conversion from 'float' to 'int', possible loss of data
+B:\Projetos\2020\3\3DEngine\3DEngine\3DEngine\3DEngine.cpp(161,47): warning C4390: ';': empty controlled statement found; is this the intent?
+  3DEngine.vcxproj -> B:\Projetos\2020\3\3DEngine\3DEngine\Debug\3DEngine.exe
