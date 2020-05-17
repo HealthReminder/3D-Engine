@@ -158,7 +158,7 @@ int main()
 {
     engine3D demo;
 
-    if (demo.ConstructConsole(256, 240, 4, 4));
+    if (demo.ConstructConsole(512, 480, 2, 2));
         demo.Start();
 
     return(0);
