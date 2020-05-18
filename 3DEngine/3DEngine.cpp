@@ -1,11 +1,11 @@
 #include "olcEngine.h";
 using namespace std;
 
-struct vec3d {
+struct vec3 {
     float x, y, z;
 };
 struct triangle {
-    vec3d  p[3];
+    vec3  vert[3];
 };
 struct mesh {
     vector<triangle> tris;
@@ -23,8 +23,9 @@ private:
     mesh mesh_cube;
 	mat4x4 matProj;
 	float fTheta;
+	vec3 cameraDir;
 
-	void MultiplyMatrixVector(vec3d& i, vec3d& o, mat4x4& m) {
+	void MultiplyMatrixVector(vec3& i, vec3& o, mat4x4& m) {
 		o.x = i.x * m.m[0][0] + i.y * m.m[1][0] + i.z * m.m[2][0] + m.m[3][0];
 		o.y = i.x * m.m[0][1] + i.y * m.m[1][1] + i.z * m.m[2][1] + m.m[3][1];
 		o.z = i.x * m.m[0][2] + i.y * m.m[1][2] + i.z * m.m[2][2] + m.m[3][2];
@@ -84,7 +85,7 @@ public:
     }
     bool OnUserUpdate(float fElapsedTime) override {
 		//Clean screen
-		Fill(0, 0, ScreenWidth(), ScreenHeight(), PIXEL_SOLID, FG_DARK_GREEN);
+		Fill(0, 0, ScreenWidth(), ScreenHeight(), PIXEL_SOLID, FG_DARK_CYAN);
 
 		// Set up rotation matrices
 		mat4x4 matRotZ, matRotX;
@@ -112,42 +113,75 @@ public:
 			triangle triProjected, triTranslated, triRotatedZ, triRotatedZX;
 
 			// Rotate in Z-Axis
-			MultiplyMatrixVector(tri.p[0], triRotatedZ.p[0], matRotZ);
-			MultiplyMatrixVector(tri.p[1], triRotatedZ.p[1], matRotZ);
-			MultiplyMatrixVector(tri.p[2], triRotatedZ.p[2], matRotZ);
+			MultiplyMatrixVector(tri.vert[0], triRotatedZ.vert[0], matRotZ);
+			MultiplyMatrixVector(tri.vert[1], triRotatedZ.vert[1], matRotZ);
+			MultiplyMatrixVector(tri.vert[2], triRotatedZ.vert[2], matRotZ);
 
 			// Rotate in X-Axis
-			MultiplyMatrixVector(triRotatedZ.p[0], triRotatedZX.p[0], matRotX);
-			MultiplyMatrixVector(triRotatedZ.p[1], triRotatedZX.p[1], matRotX);
-			MultiplyMatrixVector(triRotatedZ.p[2], triRotatedZX.p[2], matRotX);
+			MultiplyMatrixVector(triRotatedZ.vert[0], triRotatedZX.vert[0], matRotX);
+			MultiplyMatrixVector(triRotatedZ.vert[1], triRotatedZX.vert[1], matRotX);
+			MultiplyMatrixVector(triRotatedZ.vert[2], triRotatedZX.vert[2], matRotX);
 
 			// Offset into the screen
 			triTranslated = triRotatedZX;
-			triTranslated.p[0].z = triRotatedZX.p[0].z + 3.0f;
-			triTranslated.p[1].z = triRotatedZX.p[1].z + 3.0f;
-			triTranslated.p[2].z = triRotatedZX.p[2].z + 3.0f;
+			triTranslated.vert[0].z = triRotatedZX.vert[0].z + 3.0f;
+			triTranslated.vert[1].z = triRotatedZX.vert[1].z + 3.0f;
+			triTranslated.vert[2].z = triRotatedZX.vert[2].z + 3.0f;
 
-			// Project triangles from 3D --> 2D
-			MultiplyMatrixVector(triTranslated.p[0], triProjected.p[0], matProj);
-			MultiplyMatrixVector(triTranslated.p[1], triProjected.p[1], matProj);
-			MultiplyMatrixVector(triTranslated.p[2], triProjected.p[2], matProj);
+			//Calculate the triangule normal
+			//Using the cross product of its catheters
+			//Order of vertices matter to accuratelly get the catheters
+			//That is why all the vertices have a set order of assignment
+			vec3 normal, line1, line2;
+			line1.x = triTranslated.vert[1].x - triTranslated.vert[0].x;
+			line1.y = triTranslated.vert[1].y - triTranslated.vert[0].y;
+			line1.z = triTranslated.vert[1].z - triTranslated.vert[0].z;
 
-			//Scale into view
-			triProjected.p[0].x += 1.0f; triProjected.p[0].y += 1.0f;
-			triProjected.p[1].x += 1.0f; triProjected.p[1].y += 1.0f;
-			triProjected.p[2].x += 1.0f; triProjected.p[2].y += 1.0f;
-			triProjected.p[0].x *= 0.5f * (float)ScreenWidth();
-			triProjected.p[0].y *= 0.5f * (float)ScreenHeight();
-			triProjected.p[1].x *= 0.5f * (float)ScreenWidth();
-			triProjected.p[1].y *= 0.5f * (float)ScreenHeight();
-			triProjected.p[2].x *= 0.5f * (float)ScreenWidth();
-			triProjected.p[2].y *= 0.5f * (float)ScreenHeight();
+			line2.x = triTranslated.vert[2].x - triTranslated.vert[0].x;
+			line2.y = triTranslated.vert[2].y - triTranslated.vert[0].y;
+			line2.y = triTranslated.vert[2].y - triTranslated.vert[0].y;
+			line2.z = triTranslated.vert[2].z - triTranslated.vert[0].z;
 
-			//Rasterize triangle
-			DrawTriangle(triProjected.p[0].x, triProjected.p[0].y,
-				triProjected.p[1].x, triProjected.p[1].y,
-				triProjected.p[2].x, triProjected.p[2].y,
-				PIXEL_SOLID, FG_CYAN);
+			//It is normally normal to normalize normals
+			normal.x = line1.y * line2.z - line1.z * line2.y;
+			normal.y = line1.z * line2.x - line1.x * line2.z;
+			normal.z = line1.x * line2.y - line1.y* line2.x;
+			
+			float length = sqrtf(normal.x * normal.x + normal.y * normal.y + normal.z * normal.z);
+			
+			normal.x /= length;
+			normal.y /= length;
+			normal.z /= length;
+
+			//Project triangles from 3D --> 2D
+			//Using the set projection matrix
+			//But only if the face is visible
+			//To find that you need the dot product between
+			//The direction vector of the camera and the normal
+			if (normal.x * (triTranslated.vert[0].x - cameraDir.x) +
+				normal.y * (triTranslated.vert[0].y - cameraDir.y) +
+				normal.z * (triTranslated.vert[0].z - cameraDir.z) < 0.0f) {
+				MultiplyMatrixVector(triTranslated.vert[0], triProjected.vert[0], matProj);
+				MultiplyMatrixVector(triTranslated.vert[1], triProjected.vert[1], matProj);
+				MultiplyMatrixVector(triTranslated.vert[2], triProjected.vert[2], matProj);
+
+				//Scale into view
+				triProjected.vert[0].x += 1.0f; triProjected.vert[0].y += 1.0f;
+				triProjected.vert[1].x += 1.0f; triProjected.vert[1].y += 1.0f;
+				triProjected.vert[2].x += 1.0f; triProjected.vert[2].y += 1.0f;
+				triProjected.vert[0].x *= 0.5f * (float)ScreenWidth();
+				triProjected.vert[0].y *= 0.5f * (float)ScreenHeight();
+				triProjected.vert[1].x *= 0.5f * (float)ScreenWidth();
+				triProjected.vert[1].y *= 0.5f * (float)ScreenHeight();
+				triProjected.vert[2].x *= 0.5f * (float)ScreenWidth();
+				triProjected.vert[2].y *= 0.5f * (float)ScreenHeight();
+
+				//Rasterize triangle
+				DrawTriangle(triProjected.vert[0].x, triProjected.vert[0].y,
+					triProjected.vert[1].x, triProjected.vert[1].y,
+					triProjected.vert[2].x, triProjected.vert[2].y,
+					PIXEL_SOLID, FG_MAGENTA);
+			}
 		}
 		engine3D s;
         return true;
@@ -158,7 +192,7 @@ int main()
 {
     engine3D demo;
 
-    if (demo.ConstructConsole(512, 480, 2, 2));
+    if (demo.ConstructConsole(256, 240, 2, 2));
         demo.Start();
 
     return(0);
