@@ -18,12 +18,15 @@ class engine3D : public olcEngine {
 public:
     engine3D() {
         m_sAppName = L"Rendering Demo";
+		cameraDir = { 0.0f,0.0f,0.0f };
+		lightDir = { 0.0f,0.0f,-1.0f };
     }
 private:
     mesh mesh_cube;
 	mat4x4 matProj;
 	float fTheta;
 	vec3 cameraDir;
+	vec3 lightDir;
 
 	void MultiplyMatrixVector(vec3& i, vec3& o, mat4x4& m) {
 		o.x = i.x * m.m[0][0] + i.y * m.m[1][0] + i.z * m.m[2][0] + m.m[3][0];
@@ -35,6 +38,24 @@ private:
 		{
 			o.x /= w; o.y /= w; o.z /= w;
 		}
+	}
+	//This function is responsible to find the right "shade" 
+	//for a color given its luminosity
+	wchar_t GetShade(float p) {
+		wchar_t r = NAN;
+		//Apply p in a quadratic function to smooth out the lighting change
+		p = p * 2 - 0.125f;
+		int s = (int)(p * 4);
+		switch (s)
+		{
+		case 0: r = PIXEL_QUARTER; break;
+		case 1: r = PIXEL_HALF; break;
+		case 2: r = PIXEL_THREEQUARTERS; break;
+		case 3: r = PIXEL_SOLID; break;
+		default:
+			r = PIXEL_SOLID;
+		}
+		return (r);
 	}
 public:
     bool OnUserCreate() override {
@@ -153,14 +174,24 @@ public:
 			normal.y /= length;
 			normal.z /= length;
 
-			//Project triangles from 3D --> 2D
-			//Using the set projection matrix
-			//But only if the face is visible
-			//To find that you need the dot product between
+			
+			//Only render triangules that are visible
+			//For that you need the dot product between
 			//The direction vector of the camera and the normal
+			//To compare the similarity of the direction between them
 			if (normal.x * (triTranslated.vert[0].x - cameraDir.x) +
 				normal.y * (triTranslated.vert[0].y - cameraDir.y) +
 				normal.z * (triTranslated.vert[0].z - cameraDir.z) < 0.0f) {
+
+				//Lighting
+				float length = sqrtf(lightDir.x * lightDir.x + lightDir.y * lightDir.y + lightDir.z * lightDir.z);
+				float lightDot = normal.x * (lightDir.x - cameraDir.x) + 
+				normal.y * (lightDir.y - cameraDir.y) + 
+				normal.z * (lightDir.z - cameraDir.z);
+
+
+				//Project triangles from 3D --> 2D
+				//Using the set projection matrix
 				MultiplyMatrixVector(triTranslated.vert[0], triProjected.vert[0], matProj);
 				MultiplyMatrixVector(triTranslated.vert[1], triProjected.vert[1], matProj);
 				MultiplyMatrixVector(triTranslated.vert[2], triProjected.vert[2], matProj);
@@ -177,10 +208,10 @@ public:
 				triProjected.vert[2].y *= 0.5f * (float)ScreenHeight();
 
 				//Rasterize triangle
-				DrawTriangle(triProjected.vert[0].x, triProjected.vert[0].y,
+				FillTriangle(triProjected.vert[0].x, triProjected.vert[0].y,
 					triProjected.vert[1].x, triProjected.vert[1].y,
 					triProjected.vert[2].x, triProjected.vert[2].y,
-					PIXEL_SOLID, FG_MAGENTA);
+					GetShade(lightDot), FG_YELLOW);
 			}
 		}
 		engine3D s;
