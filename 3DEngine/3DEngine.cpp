@@ -1,14 +1,61 @@
 #include "olcEngine.h";
-using namespace std;
+#include <fstream>;
+#include <strstream>;
+#include <algorithm>;
+ using namespace std;
 
 struct vec3 {
     float x, y, z;
 };
 struct triangle {
     vec3  vert[3];
+	float light_incidence;
 };
 struct mesh {
+
     vector<triangle> tris;
+
+	bool LoadObjectFile(string filename) {
+		//ifstream executes input and output operations 
+		//On the file it is associated with
+		ifstream f(filename);
+		if (!f.is_open())
+			return false;
+
+		//Triangles will be build accessing this vertice pool
+		vector<vec3> verts;
+
+		//The file will be read
+		//It should behave like a text file
+		//Each line such have its first character as an identifier
+		while (!f.eof()) {
+			char line[128];
+			f.getline(line, 128);
+
+			strstream s;
+			s << line;
+
+			//Store the identifier
+			char junk;
+
+			//'v' is the identifier for vertices
+			if (line[0] == 'v') {
+				vec3 v;
+				s >> junk >> v.x >> v.y >> v.z;
+				verts.push_back(v);
+			}
+
+			if (line[0] == 'f') {
+				int f[3];
+				s >> junk >> f[0] >> f[1] >> f[2];
+				//Since OBJ files start counting from 1 it must be subtracted from the index
+				tris.push_back({ verts[f[0] - 1], verts[f[1] - 1], verts[f[2] - 1] });
+			}
+			
+		}
+
+		return true;
+	}
 };
 struct mat4x4 {
 	float m[4][4] = { 0 };
@@ -44,7 +91,8 @@ private:
 	wchar_t GetShade(float p) {
 		wchar_t r = NAN;
 		//Apply p in a quadratic function to smooth out the lighting change
-		p = p * 2 - 0.125f;
+		//p =  (p * p) + 0*p +  1.0f;
+		p = (p * p) + 0.1f;
 		int s = (int)(p * 4);
 		switch (s)
 		{
@@ -59,33 +107,35 @@ private:
 	}
 public:
     bool OnUserCreate() override {
-		mesh_cube.tris = {
+		//mesh_cube.tris = {
 
 			// SOUTH
-			{ 0.0f, 0.0f, 0.0f,    0.0f, 1.0f, 0.0f,    1.0f, 1.0f, 0.0f },
-			{ 0.0f, 0.0f, 0.0f,    1.0f, 1.0f, 0.0f,    1.0f, 0.0f, 0.0f },
+			//{ 0.0f, 0.0f, 0.0f,    0.0f, 1.0f, 0.0f,    1.0f, 1.0f, 0.0f },
+			//{ 0.0f, 0.0f, 0.0f,    1.0f, 1.0f, 0.0f,    1.0f, 0.0f, 0.0f },
 
 			// EAST                                                      
-			{ 1.0f, 0.0f, 0.0f,    1.0f, 1.0f, 0.0f,    1.0f, 1.0f, 1.0f },
-			{ 1.0f, 0.0f, 0.0f,    1.0f, 1.0f, 1.0f,    1.0f, 0.0f, 1.0f },
+			//{ 1.0f, 0.0f, 0.0f,    1.0f, 1.0f, 0.0f,    1.0f, 1.0f, 1.0f },
+			//{ 1.0f, 0.0f, 0.0f,    1.0f, 1.0f, 1.0f,    1.0f, 0.0f, 1.0f },
 
 			// NORTH                                                     
-			{ 1.0f, 0.0f, 1.0f,    1.0f, 1.0f, 1.0f,    0.0f, 1.0f, 1.0f },
-			{ 1.0f, 0.0f, 1.0f,    0.0f, 1.0f, 1.0f,    0.0f, 0.0f, 1.0f },
+			//{ 1.0f, 0.0f, 1.0f,    1.0f, 1.0f, 1.0f,    0.0f, 1.0f, 1.0f },
+			//{ 1.0f, 0.0f, 1.0f,    0.0f, 1.0f, 1.0f,    0.0f, 0.0f, 1.0f },
 
 			// WEST                                                      
-			{ 0.0f, 0.0f, 1.0f,    0.0f, 1.0f, 1.0f,    0.0f, 1.0f, 0.0f },
-			{ 0.0f, 0.0f, 1.0f,    0.0f, 1.0f, 0.0f,    0.0f, 0.0f, 0.0f },
+			//{ 0.0f, 0.0f, 1.0f,    0.0f, 1.0f, 1.0f,    0.0f, 1.0f, 0.0f },
+			//{ 0.0f, 0.0f, 1.0f,    0.0f, 1.0f, 0.0f,    0.0f, 0.0f, 0.0f },
 
 			// TOP                                                       
-			{ 0.0f, 1.0f, 0.0f,    0.0f, 1.0f, 1.0f,    1.0f, 1.0f, 1.0f },
-			{ 0.0f, 1.0f, 0.0f,    1.0f, 1.0f, 1.0f,    1.0f, 1.0f, 0.0f },
+			//{ 0.0f, 1.0f, 0.0f,    0.0f, 1.0f, 1.0f,    1.0f, 1.0f, 1.0f },
+			//{ 0.0f, 1.0f, 0.0f,    1.0f, 1.0f, 1.0f,    1.0f, 1.0f, 0.0f },
 
 			// BOTTOM                                                    
-			{ 1.0f, 0.0f, 1.0f,    0.0f, 0.0f, 1.0f,    0.0f, 0.0f, 0.0f },
-			{ 1.0f, 0.0f, 1.0f,    0.0f, 0.0f, 0.0f,    1.0f, 0.0f, 0.0f },
+			//{ 1.0f, 0.0f, 1.0f,    0.0f, 0.0f, 1.0f,    0.0f, 0.0f, 0.0f },
+			//{ 1.0f, 0.0f, 1.0f,    0.0f, 0.0f, 0.0f,    1.0f, 0.0f, 0.0f },
 
-		};
+		//};
+
+		mesh_cube.LoadObjectFile("VideoShip.obj");
 
 		//Projection Matrix is populated once because the screen dimensions and field 
 		//of view will not change in this application
@@ -106,7 +156,7 @@ public:
     }
     bool OnUserUpdate(float fElapsedTime) override {
 		//Clean screen
-		Fill(0, 0, ScreenWidth(), ScreenHeight(), PIXEL_SOLID, FG_DARK_CYAN);
+		Fill(0, 0, ScreenWidth(), ScreenHeight(), PIXEL_SOLID, FG_BLACK);
 
 		// Set up rotation matrices
 		mat4x4 matRotZ, matRotX;
@@ -128,6 +178,8 @@ public:
 		matRotX.m[2][2] = cosf(fTheta * 0.5f);
 		matRotX.m[3][3] = 1;
 
+		vector<triangle> trianglesToRasterize;
+
 		//Draw triangles from cube
 		for (auto tri : mesh_cube.tris)
 		{
@@ -145,9 +197,9 @@ public:
 
 			// Offset into the screen
 			triTranslated = triRotatedZX;
-			triTranslated.vert[0].z = triRotatedZX.vert[0].z + 3.0f;
-			triTranslated.vert[1].z = triRotatedZX.vert[1].z + 3.0f;
-			triTranslated.vert[2].z = triRotatedZX.vert[2].z + 3.0f;
+			triTranslated.vert[0].z = triRotatedZX.vert[0].z - 8.0f;
+			triTranslated.vert[1].z = triRotatedZX.vert[1].z - 8.0f;
+			triTranslated.vert[2].z = triRotatedZX.vert[2].z - 8.0f;
 
 			//Calculate the triangule normal
 			//Using the cross product of its catheters
@@ -189,6 +241,7 @@ public:
 				normal.y * (lightDir.y - cameraDir.y) + 
 				normal.z * (lightDir.z - cameraDir.z);
 
+				triProjected.light_incidence = lightDot;
 
 				//Project triangles from 3D --> 2D
 				//Using the set projection matrix
@@ -207,13 +260,39 @@ public:
 				triProjected.vert[2].x *= 0.5f * (float)ScreenWidth();
 				triProjected.vert[2].y *= 0.5f * (float)ScreenHeight();
 
+				trianglesToRasterize.push_back(triProjected);
+
 				//Rasterize triangle
-				FillTriangle(triProjected.vert[0].x, triProjected.vert[0].y,
-					triProjected.vert[1].x, triProjected.vert[1].y,
-					triProjected.vert[2].x, triProjected.vert[2].y,
-					GetShade(lightDot), FG_YELLOW);
+				//FillTriangle(triProjected.vert[0].x, triProjected.vert[0].y,
+				//	triProjected.vert[1].x, triProjected.vert[1].y,
+				//	triProjected.vert[2].x, triProjected.vert[2].y,
+				//	GetShade(lightDot), FG_RED);
+
+				//Wirefram visualization for debugging
+				//DrawTriangle(triProjected.vert[0].x, triProjected.vert[0].y,
+				//	triProjected.vert[1].x, triProjected.vert[1].y,
+				//	triProjected.vert[2].x, triProjected.vert[2].y,
+				//	PIXEL_HALF, FG_DARK_RED);
 			}
+			
 		}
+	
+		//Before drawing the triangles they must be sort in order to avoid faces overlapping
+		sort(trianglesToRasterize.begin(), trianglesToRasterize.end(), [](triangle& t1, triangle& t2)
+			{
+				float z1 = (t1.vert[0].z + t1.vert[1].z + t1.vert[2].z) / 3.0f;
+				float z2 = (t2.vert[0].z + t2.vert[1].z + t2.vert[2].z) / 3.0f;
+				return z1 < z2;
+			});
+
+		for (auto& triProjected : trianglesToRasterize)
+		{
+			FillTriangle(triProjected.vert[0].x, triProjected.vert[0].y,
+				triProjected.vert[1].x, triProjected.vert[1].y,
+				triProjected.vert[2].x, triProjected.vert[2].y,
+				GetShade(triProjected.light_incidence), FG_RED);
+		}
+
 		engine3D s;
         return true;
     }
