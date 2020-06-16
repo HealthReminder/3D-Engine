@@ -173,7 +173,6 @@ private:
 
 	mat4x4 MatrixCreateTranslation(float x, float y, float z)
 	{
-		//mat4x4 matrix = MatrixIdentity();
 		mat4x4 matrix;
 		matrix.m[0][0] = 1.0f;
 		matrix.m[1][1] = 1.0f;
@@ -270,9 +269,9 @@ private:
 	void InputCameraMovement(float fElapsedTime) {
 		//Y Axis
 		if (GetKey(VK_UP).bHeld)
-			vectorCamera.y -= 8.0f * fElapsedTime;
-		if (GetKey(VK_DOWN).bHeld)
 			vectorCamera.y += 8.0f * fElapsedTime;
+		if (GetKey(VK_DOWN).bHeld)
+			vectorCamera.y -= 8.0f * fElapsedTime;
 
 		//X Axis
 		if (GetKey(VK_RIGHT).bHeld)
@@ -290,9 +289,9 @@ private:
 
 		//Rotate along Y axis
 		if (GetKey(L'D').bHeld)
-			rotationYaw -= 2.0f * fElapsedTime;
-		if (GetKey(L'A').bHeld)
 			rotationYaw += 2.0f * fElapsedTime;
+		if (GetKey(L'A').bHeld)
+			rotationYaw -= 2.0f * fElapsedTime;
 	}
 public:
     bool OnUserCreate() override {
@@ -300,7 +299,7 @@ public:
 		//mesh_cube.LoadObjectFile("VideoShip.obj");
 		mesh_cube.LoadObjectFile("axis.obj");
 
-		matProj = MatrixCreateProjection(90.0f, (float)ScreenHeight() / (float)ScreenWidth(), 0.1f, 1000.0f);
+		matProj = MatrixCreateProjection(120.0f, (float)ScreenHeight() / (float)ScreenWidth(), 0.1f, 1000.0f);
 
 		return true;
     }
@@ -311,19 +310,19 @@ public:
 
 		// Set up rotation matrices
 		mat4x4 matrixRotZ, matrixRotX;
+		fTheta = 0;
 		//fTheta += 1.0f * fElapsedTime;
 
 		// Rotations
 		matrixRotZ = MatrixCreateRotationZ(fTheta*0.5f);
 		matrixRotX = MatrixCreateRotationX(fTheta);
 
-		mat4x4 matrixTransform = MatrixCreateTranslation(0.0f, 0.0f, 16.0f);
+		mat4x4 matrixTransform = MatrixCreateTranslation(0.0f, 0.0f, 10.0f);
 
 		mat4x4 matrixWorld = MatrixIdentity();
 		matrixWorld = MatrixMultiplyMatrix(matrixRotZ, matrixRotX);
 		matrixWorld = MatrixMultiplyMatrix(matrixWorld, matrixTransform);
 
-		vectorCameraLooking = { 0,0,1 };
 		vec3 vectorUp = { 0,1,0 };
 		vec3 vectorTarget = { 0,0,1 };
 		mat4x4 matrixCameraRotation = MatrixCreateRotationY(rotationYaw);
@@ -407,7 +406,7 @@ public:
 			{
 				float z1 = (t1.vert[0].z + t1.vert[1].z + t1.vert[2].z)/3;
 				float z2 = (t2.vert[0].z + t2.vert[1].z + t2.vert[2].z)/3;
-				return z1 < z2;
+				return z1 > z2;
 			});
 
 		for (auto& triProjected : trianglesToRasterize)

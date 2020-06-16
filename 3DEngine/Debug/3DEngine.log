@@ -3,12 +3,12 @@ B:\Projetos\2020\3\3D-Engine\3D-Engine\3DEngine\3DEngine.cpp(1,10): warning C406
 B:\Projetos\2020\3\3D-Engine\3D-Engine\3DEngine\3DEngine.cpp(2,10): warning C4067: unexpected tokens following preprocessor directive - expected a newline
 B:\Projetos\2020\3\3D-Engine\3D-Engine\3DEngine\3DEngine.cpp(3,10): warning C4067: unexpected tokens following preprocessor directive - expected a newline
 B:\Projetos\2020\3\3D-Engine\3D-Engine\3DEngine\3DEngine.cpp(4,10): warning C4067: unexpected tokens following preprocessor directive - expected a newline
-B:\Projetos\2020\3\3D-Engine\3D-Engine\3DEngine\3DEngine.cpp(254,13): warning C4244: 'initializing': conversion from 'float' to 'wchar_t', possible loss of data
-B:\Projetos\2020\3\3D-Engine\3D-Engine\3DEngine\3DEngine.cpp(417,49): warning C4244: 'argument': conversion from 'float' to 'int', possible loss of data
-B:\Projetos\2020\3\3D-Engine\3D-Engine\3DEngine\3DEngine.cpp(417,25): warning C4244: 'argument': conversion from 'float' to 'int', possible loss of data
+B:\Projetos\2020\3\3D-Engine\3D-Engine\3DEngine\3DEngine.cpp(253,13): warning C4244: 'initializing': conversion from 'float' to 'wchar_t', possible loss of data
 B:\Projetos\2020\3\3D-Engine\3D-Engine\3DEngine\3DEngine.cpp(416,49): warning C4244: 'argument': conversion from 'float' to 'int', possible loss of data
 B:\Projetos\2020\3\3D-Engine\3D-Engine\3DEngine\3DEngine.cpp(416,25): warning C4244: 'argument': conversion from 'float' to 'int', possible loss of data
-B:\Projetos\2020\3\3D-Engine\3D-Engine\3DEngine\3DEngine.cpp(415,61): warning C4244: 'argument': conversion from 'float' to 'int', possible loss of data
-B:\Projetos\2020\3\3D-Engine\3D-Engine\3DEngine\3DEngine.cpp(415,37): warning C4244: 'argument': conversion from 'float' to 'int', possible loss of data
-B:\Projetos\2020\3\3D-Engine\3D-Engine\3DEngine\3DEngine.cpp(430,47): warning C4390: ';': empty controlled statement found; is this the intent?
+B:\Projetos\2020\3\3D-Engine\3D-Engine\3DEngine\3DEngine.cpp(415,49): warning C4244: 'argument': conversion from 'float' to 'int', possible loss of data
+B:\Projetos\2020\3\3D-Engine\3D-Engine\3DEngine\3DEngine.cpp(415,25): warning C4244: 'argument': conversion from 'float' to 'int', possible loss of data
+B:\Projetos\2020\3\3D-Engine\3D-Engine\3DEngine\3DEngine.cpp(414,61): warning C4244: 'argument': conversion from 'float' to 'int', possible loss of data
+B:\Projetos\2020\3\3D-Engine\3D-Engine\3DEngine\3DEngine.cpp(414,37): warning C4244: 'argument': conversion from 'float' to 'int', possible loss of data
+B:\Projetos\2020\3\3D-Engine\3D-Engine\3DEngine\3DEngine.cpp(429,47): warning C4390: ';': empty controlled statement found; is this the intent?
   3DEngine.vcxproj -> B:\Projetos\2020\3\3D-Engine\3D-Engine\Debug\3DEngine.exe
